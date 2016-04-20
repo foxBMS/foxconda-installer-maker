@@ -103,7 +103,14 @@ class CondaInstallationWizard(wx.wizard.Wizard):
 
 
         self._resources = xrc.EmptyXmlResource()
-        self._resources.Load(_getpath('xrc', 'fci.xrc'))
+
+        _cwd = getattr(sys, '_MEIPASS', None)
+        if not _cwd:
+            _xrc = _getpath('xrc', 'fci.xrc')
+        else:
+            _xrc = os.path.join(_cwd, 'xrc', 'fci.xrc')
+
+        self._resources.Load(_xrc)
 
         pre = wx.wizard.PreWizard()
         self.PreCreate(pre)
