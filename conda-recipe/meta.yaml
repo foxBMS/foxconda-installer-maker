@@ -1,0 +1,28 @@
+package:
+    name: foxconda_installer
+    version: "0.1"
+
+source:
+    path: ..
+
+build:
+    number: 1
+    osx_is_app: True
+    entry_points:
+        - fcmakeinstaller = foxconda_installer.mkinstaller:main
+        - fcmakepayload   = foxconda_installer.sdkpayload:main
+        - fcgetrepository = foxconda_installer.getrepository:main
+
+requirements:
+    build:
+        - python
+        - setuptools
+    run:
+        - python
+        - wxpython
+
+about:
+    home: http://www.foxbms.org
+    license: BSD
+    license_file: LICENSE
+
