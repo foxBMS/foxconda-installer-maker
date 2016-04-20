@@ -1,3 +1,10 @@
+#
+# file:        meta.yaml
+# date:        Wed Apr 20 21:30:32 CEST 2016
+# author:  Tim Fuehner <tim.fuehner@iisb.fraunhofer.de>
+# $Id$
+#
+
 package:
     name: foxconda_installer
     version: "0.1"
