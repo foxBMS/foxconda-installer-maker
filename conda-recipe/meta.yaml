@@ -12,6 +12,7 @@ build:
         - fcmakeinstaller = foxconda_installer.mkinstaller:main
         - fcmakepayload   = foxconda_installer.sdkpayload:main
         - fcgetrepository = foxconda_installer.getrepository:main
+        - fctestinstaller = foxconda_installer.installer:main
 
 requirements:
     build:
@@ -20,9 +21,10 @@ requirements:
     run:
         - python
         - wxpython
+        - pyinstaller
 
 about:
     home: http://www.foxbms.org
     license: BSD
-    license_file: LICENSE
+#    license_file: LICENSE
 
