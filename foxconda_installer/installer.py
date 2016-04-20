@@ -6,7 +6,6 @@ $Id$
 
 import argparse
 import logging
-import cliinstaller
 
 
 def main():
@@ -25,10 +24,10 @@ def main():
         logging.basicConfig(level = logging.DEBUG)
 
     if args.no_gui:
-        import cliinstaller
+        from foxconda_installer import cliinstaller
         cliinstaller.main(args.installdir)
     else:
-        import guiinstaller
+        from foxconda_installer import guiinstaller
         guiinstaller.main(args.installdir)
 
 
