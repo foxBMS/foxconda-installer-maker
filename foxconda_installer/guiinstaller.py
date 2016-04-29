@@ -206,14 +206,14 @@ class CondaInstallationWizard(wx.wizard.Wizard):
         page = evt.GetPage().GetName()
 
         # if leaving license page, check if license has been accepted
-        if page == 'license_page' and wx.xrc.XRCCTRL(self, 'license_radio').GetSelection() < 1:
+        if evt.GetDirection() and page == 'license_page' and wx.xrc.XRCCTRL(self, 'license_radio').GetSelection() < 1:
             dlg = DeclineDialog(self)
             ret = dlg.ShowModal()
             if ret != wx.ID_OK:
                 self.forceClose = True
                 self.Close()
             evt.Veto()
-        elif page == 'location_page':
+        elif evt.GetDirection() and page == 'location_page':
             _path = wx.xrc.XRCCTRL(self, 'location_dp').GetPath()
             if not self.installdir.setPathAndCheck(_path):
                 evt.Veto()
