@@ -74,6 +74,8 @@ class WelcomeText(object):
         self.pretty = pretty
         self.pre = []
         self.paged = True
+        if sys.platform.startswith('win'):
+            self.paged = False
 
     def addText(self, text):
         self.wt += text
@@ -119,7 +121,7 @@ class DirectoryInput(object):
     def getDefaultInstallLocation(self, path):
 
         if sys.platform.startswith('win'):
-            import platform, cytpes, knownpaths
+            import platform, ctypes, knownpaths
             is_admin = ctypes.windll.shell32.IsUserAnAdmin() != 0
             if is_admin:
                 if platform.architecture()[0] == '64bit':
@@ -127,7 +129,7 @@ class DirectoryInput(object):
                 else:
                     _progs = knownpaths.get_path(knownpaths.FOLDERID.ProgramFilesX86)
             else:
-                _progs = knownpaths.get_path(knownpaths.FOLDERID.UserProgramFiles)
+                _progs = os.path.expanduser('~')
         else:
             is_admin = os.getuid() == 0
             if is_admin:
@@ -256,10 +258,12 @@ class Installer(object):
         _size = os.stat(_payload).st_size
         thisdir = os.path.abspath('.')
         os.chdir(os.path.join(self.targetdir, 'pkgs'))
+
         with tarfile.open(_payload) as _f:
             for n,tarinfo in enumerate(_f):
                 pass
-        n += 1
+            n += 1
+
         with tarfile.open(_payload) as _f:
             _f.extractall(members=self._extract_cb(_f, n))
         os.chdir(thisdir)
@@ -296,9 +300,9 @@ class Installer(object):
         # patch the environment
         env = os.environ.copy()
         _ppath = env.get('PYTHONPATH', '').split(os.path.pathsep)
-        _ppath = [_misitepackage] + _ppath
+        _ppath = [str(_misitepackage)] + _ppath
         env['PYTHONPATH'] = os.path.pathsep.join(_ppath)
-        
+
         _s = len(self.packages) + len(self.postpackages) + len(self.primepackages)
         j = 0
         for _ppath, packages in [
@@ -308,16 +312,17 @@ class Installer(object):
 
             for i, p in enumerate(packages):
                 _name = p[:-len('.tar.bz2')]
-                with tempfile.NamedTemporaryFile() as _tm:
+                _tm = tempfile.NamedTemporaryFile(delete = False)
+                try:
                     self.progressCB(_name, j + 1, _s, 'linking: ')
                     j += 1
                     _tm.file.write(_name)
                     _tm.file.close()
                     _args = [_ppath, _install, '--file=%s' % _tm.name, '--prefix=%s' % self.targetdir]
-                    try:
-                        out = subprocess.check_output(_args, env=env)
-                    except:
-                        pass
+                    #out = subprocess.check_output(_args, shell=True, env=env)
+                    subprocess.call(_args, shell=True, env=env)
+                finally:
+                    os.remove(_tm.name)
 
 
     def extraFiles(self):
@@ -335,7 +340,7 @@ class Installer(object):
     def postInstall(self):
         for f in self.conf.getTopicFiles('postinstall', 'scripts'):
             if sys.platform.startswith('win'):
-                cmd = os.path.join(self.targetdir, 'python') + ' ' + os.path.join(self.conf.dirname, f)
+                cmd = os.path.join(self.targetdir, 'python.exe') + ' ' + os.path.join(self.conf.dirname, f)
             else:
                 cmd = os.path.join(self.targetdir, 'bin', 'python') + ' ' + os.path.join(self.conf.dirname, f)
             subprocess.call(cmd, shell=True)
@@ -344,6 +349,10 @@ class Installer(object):
         _cmd = self.conf.getEntry('launch')['cmd']
         if sys.platform.startswith('win'):
             cmd = os.path.join(self.targetdir, 'Scripts', _cmd)
+            for _ext in ['.exe', '.bat']:
+                if os.path.exists(cmd + _ext):
+                    cmd += _ext
+                    break
         else:
             cmd = os.path.join(self.targetdir, 'bin', _cmd)
         subprocess.Popen([cmd]).pid

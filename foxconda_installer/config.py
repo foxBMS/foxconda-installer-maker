@@ -18,6 +18,9 @@ class InstallerConfig(object):
     def getEntry(self, k):
         return self.entries.get(k, None)
 
+    def setEntry(self, k, v):
+        self.entries[k] = v
+
     def getFiles(self, k):
         if k in ['license', 'data']:
             return self.getTopicFiles(k, 'files')
@@ -63,6 +66,10 @@ class InstallerConfig(object):
     def read(self):
         with open(self.config) as f:
             self.entries = yaml.load(f.read())
+
+    def write(self):
+        with open(self.config, 'w') as f:
+            f.write(yaml.dump(self.entries))
 
 
 if __name__ == '__main__':

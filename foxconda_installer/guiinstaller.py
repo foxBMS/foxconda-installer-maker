@@ -122,6 +122,12 @@ class CondaInstallationWizard(wx.wizard.Wizard):
         self.canCancel = True
 
         self.SetTitle(self.conf.getEntry('title'))
+        _icon = self.conf.getIconFile()
+        if _icon:
+            _cwd = getattr(sys, '_MEIPASS', None)
+            if _cwd:
+                _icon = os.path.join(_cwd, 'data', _icon)
+            self.SetIcon(wx.Icon(_icon, wx.BITMAP_TYPE_ICO))
         self.SetBitmap(wx.Bitmap(os.path.join(self.conf.dirname,
             self.conf.getEntry('image'))))
 

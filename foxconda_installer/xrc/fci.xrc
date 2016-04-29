@@ -113,7 +113,7 @@
         </object>
         <object class="sizeritem">
           <object class="wxStaticText" name="info_text">
-            <style>wxALIGN_CENTRE</style>
+            <label>initializing...</label>
           </object>
           <option>0</option>
           <flag>wxALL|wxEXPAND</flag>
