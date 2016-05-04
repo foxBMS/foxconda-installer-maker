@@ -202,7 +202,7 @@
               <orient>wxHORIZONTAL</orient>
               <object class="sizeritem">
                 <object class="wxButton" name="abort_b">
-                  <label>Abbort Installation</label>
+                  <label>Abort Installation</label>
                 </object>
                 <option>0</option>
                 <flag>wxALL</flag>
