@@ -319,10 +319,23 @@ class Installer(object):
                     _tm.file.write(_name)
                     _tm.file.close()
                     _args = [_ppath, _install, '--file=%s' % _tm.name, '--prefix=%s' % self.targetdir]
+                    if sys.platform.startswith('linux'):
+                        _args = ' '.join([_ppath, _install, '--file=%s' % _tm.name, '--prefix=%s' % self.targetdir])
                     #out = subprocess.check_output(_args, shell=True, env=env)
                     subprocess.call(_args, shell=True, env=env)
                 finally:
                     os.remove(_tm.name)
+
+        '''
+        echo "creating default environment..."
+        export FORCE
+        $PYTHON -E -s "$PREFIX/pkgs/.install.py" --root-prefix=$PREFIX || exit 1
+
+        PYTHONB="$PREFIX/bin/python"
+        $PYTHONB -E -s "$PREFIX/pkgs/.cio-config.py" "$THIS_PATH"
+        echo "installation finished."
+        '''
+
 
 
     def extraFiles(self):
