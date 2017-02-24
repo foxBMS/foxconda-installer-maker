@@ -10,6 +10,7 @@ import sdkconda
 import tarfile
 import os
 import logging
+import subprocess
 
 class PayloadGenerator(object):
 
@@ -28,6 +29,31 @@ class PayloadGenerator(object):
     def readRepo(self):
         with open(self.repofname, 'r') as _f:
             self._packages = json.load(_f)['packages']
+
+    def getCondaDependencies(self):
+        _version = sdkconda.SDKFoxConda.findNewestPackage('conda').split('-')[1]
+        p = subprocess.Popen('conda info --json conda={}'.format(_version),
+                stdout=subprocess.PIPE, stderr=None, stdin=None, shell=True)
+        _d = p.stdout.read()
+        pk = json.loads(_d)['conda={}'.format(_version)]
+        p.communicate()
+        for p in pk:
+            if p['build'].startswith('py27'):
+                for d in p['depends']:
+                    _p = d.split(' ')[0]
+                    _exists = False
+                    for k,v in self._packages.iteritems():
+                        print v['name'], _p 
+                        if v['name'] == _p:
+                            _exists = True
+                            break
+                    print '*', _exists, _p
+                    if not _exists:
+                        self._packages[_p] = {
+                                'name': _p
+                                }
+        print self._packages
+
 
     def addPackage(self, pname):
         if pname in self.IGNORE:
@@ -93,7 +119,9 @@ def main():
 
     pg = PayloadGenerator(args.repository, args.output, args.conda,
             args.buildenv, args.metapackage)
+    pg.clean()
     pg.readRepo()
+    pg.getCondaDependencies()
     pg.compilePackageList()
     pg.collectPackageFiles()
     pg.generatePayload()
