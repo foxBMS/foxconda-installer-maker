@@ -82,15 +82,22 @@ class SDKFoxConda(object):
         for f in glob.glob(os.path.join(sys.prefix, 'envs', self._BUILD_ENV,
             'conda-meta', '*.json')):
             with open(f, 'r') as _f:
-                packages += [json.load(_f)['link']['source'] + '.tar.bz2']
-
+                _json = json.load(_f)
+                _source = _json['link']['source'] + '.tar.bz2'
+                if not os.path.exists(_source):
+                    _p = subprocess.call('conda install -f -y {}'.format(_json['name']), stdout=None, stderr=None, stdin=None, shell=True)
+                packages += [_source]
         self.packages = packages
 
-    def addNewestPackage(self, name):
-        _name = '-'.join([name, '*', '*'])
-        self.packages += [[n for n in glob.glob(os.path.join(sys.prefix, 'pkgs', _name)) if
+    @staticmethod
+    def findNewestPackage(name):
+        _name = '-'.join([name, '*', '*.tar.bz2'])
+        return [n for n in glob.glob(os.path.join(sys.prefix, 'pkgs', _name)) if
                 len(os.path.basename(n).split('-')) ==
-                len(_name.split('-'))][-1]]
+                len(_name.split('-'))][-1]
+
+    def addNewestPackage(self, name):
+        self.packages += [self.findNewestPackage(name)]
 
 
 
