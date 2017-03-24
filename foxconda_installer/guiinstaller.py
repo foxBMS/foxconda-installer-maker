@@ -1,3 +1,9 @@
+"""
+:since:     Fri Mar 24 11:13:51 CET 2017
+:author:    Tim Fuehner <tim.fuehner@iisb.fraunhofer.de>
+$Id$
+"""
+
 import os
 import sys
 import wx
@@ -36,10 +42,11 @@ class InstallationThread(threading.Thread):
     def run(self):
         self.parent.canCancel = False
         self.parent.installer.mkdir()
-        self.parent.installer.extract()
-        self.parent.installer.extractPackages()
-        self.parent.installer.linkPackages()
         self.parent.installer.extraFiles()
+        self.parent.installer.extract()
+        self.parent.installer.extractAndLinkPackages()
+        #self.parent.installer.extractPackages()
+        #self.parent.installer.linkPackages()
         wx.CallAfter(self.parent.writeLog, '__all_done__')
         wx.CallAfter(self.parent.writeLog, 'post install triggers')
         self.parent.installer.postInstall()
