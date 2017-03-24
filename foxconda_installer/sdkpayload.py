@@ -35,8 +35,11 @@ class PayloadGenerator(object):
         p = subprocess.Popen('conda info --json conda={}'.format(_version),
                 stdout=subprocess.PIPE, stderr=None, stdin=None, shell=True)
         _d = p.stdout.read()
-        pk = json.loads(_d)['conda={}'.format(_version)]
+        pk = json.loads(_d)
         p.communicate()
+        if p.returncode != 0:
+            raise RuntimeError(pk['error'])
+        pk = pk['conda={}'.format(_version)]
         for p in pk:
             if p['build'].startswith('py27'):
                 for d in p['depends']:
@@ -86,7 +89,8 @@ class PayloadGenerator(object):
             for p in self.packagefiles:
                 os.chdir(os.path.dirname(p))
                 _tar.add(os.path.basename(p))
-        os.chdir(_wd)
+            os.chdir(_wd)
+            #_tar.add('_install.py')
 
     def clean(self):
         _conda = sdkconda.SDKFoxConda().cleanBuildEnv()
