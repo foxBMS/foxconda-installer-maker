@@ -73,9 +73,12 @@ class SDKFoxConda(object):
                 pass
 
     def cleanBuildEnv(self):
-        cmd = self._CONDA + ' remove -y -n ' + self._BUILD_ENV + ' --all'
-        logging.debug(cmd)
-        status = subprocess.call(cmd, shell=True)
+        try:
+            logging.debug(cmd)
+            cmd = self._CONDA + ' remove -y -n ' + self._BUILD_ENV + ' --all'
+            status = subprocess.call(cmd, shell=True)
+        except:
+            pass
 
     def collectPackages(self):
         packages = []
