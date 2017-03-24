@@ -180,6 +180,7 @@ class InstallerMaker(object):
         logging.info('running: ' + ' '.join(_args))
 
         subprocess.call(' '.join(_args), shell=True)
+        os.remove(self.SPECFILE)
 
 
 def main():
