@@ -282,6 +282,44 @@ class Installer(object):
                 _f.extractall(path = _name)
         os.chdir(thisdir)
 
+    def extractAndLinkPackages(self):
+        '''
+        After a packages is extracted, the package information is stored in
+        the info directory of the target installation directory. Then, the
+        _install.py script is executed without any arguments. 
+        '''
+
+        # _install.py script location
+        _install = os.path.join(self.targetdir, 'pkgs', 'install.py')
+
+        # set temporary locations of packages
+        if sys.platform.startswith('win'):
+            _pythonpath = os.path.join(self.targetdir, 'python')
+            _condapath = os.path.join(self.targetdir, 'pkgs', self.conda, 'Lib', 'site-packages', 'conda')
+            _misitepackage = os.path.join(self.targetdir, 'pkgs', self.menuinst, 'Lib', 'site-packages')
+        else:
+            _pythonpath = os.path.join(self.targetdir, 'bin', 'python')
+            _condapath = os.path.join(self.targetdir, 'pkgs', self.conda, 'lib', 'python2.7', 'site-packages', 'conda')
+            _misitepackage = os.path.join(self.targetdir, 'pkgs', self.menuinst,'lib', 'python2.7', 'site-packages')
+
+        thisdir = os.path.abspath('.')
+        os.chdir(os.path.join(self.targetdir))
+        _s = len(self.allpackages)
+        for i, p in enumerate(self.allpackages):
+            _name = p[:-len('.tar.bz2')]
+            _path = os.path.join('pkgs', p)
+            self.progressCB(_name, i + 1, _s, 'installing: ')
+            with tarfile.open(_path) as _f:
+                #_f.extractall(path = _name)
+                _f.extractall(path = self.targetdir)
+            _args = [_pythonpath, '-E', '-s', _install]
+            if sys.platform.startswith('linux'):
+                _args = ' '.join(_args)
+            #subprocess.call(_args, shell=True, env=env)
+            subprocess.call(_args, shell=True)
+            os.remove(_path)
+        os.chdir(thisdir)
+
     def linkPackages(self):
         if sys.platform.startswith('win'):
             _primer_pythonpath = os.path.join(self.targetdir, 'pkgs', self.python, 'python')
@@ -320,7 +358,7 @@ class Installer(object):
                     _tm.file.close()
                     _args = [_ppath, _install, '--file=%s' % _tm.name, '--prefix=%s' % self.targetdir]
                     if sys.platform.startswith('linux'):
-                        _args = ' '.join([_ppath, _install, '--file=%s' % _tm.name, '--prefix=%s' % self.targetdir])
+                        _args = ' '.join(_args)
                     #out = subprocess.check_output(_args, shell=True, env=env)
                     subprocess.call(_args, shell=True, env=env)
                 finally:
@@ -336,11 +374,9 @@ class Installer(object):
         echo "installation finished."
         '''
 
-
-
     def extraFiles(self):
         for k in ['data', 'license']:
-            _entry = self.conf.getEntry('license')
+            _entry = self.conf.getEntry(k)
             if _entry:
                 _target = os.path.join(self.targetdir, _entry['target'])
                 try:
@@ -383,7 +419,6 @@ class Installer(object):
         '''
 
 
-
 def main(installdir = None):
 
     _cwd = getattr(sys, '_MEIPASS', None)
@@ -419,10 +454,11 @@ def main(installdir = None):
         sys.exit(0)
     inst = Installer(conf, targetdir = _path)
     inst.mkdir()
-    inst.extract()
-    inst.extractPackages()
-    inst.linkPackages()
     inst.extraFiles()
+    inst.extract()
+    #inst.extractPackages()
+    #inst.linkPackages()
+    inst.extractAndLinkPackages()
     inst.postInstall()
 
     _success = conf.getEntry('success') 
