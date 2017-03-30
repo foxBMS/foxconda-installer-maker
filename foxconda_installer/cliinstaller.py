@@ -19,6 +19,9 @@ import config
 import pprint
 import shutil
 
+from __info__ import __name__, __version__, __build__, __platform__
+
+
 def cli_page(txt, pretty = True):
     if sys.platform.startswith('win'):
         _cmd = 'more'
@@ -419,7 +422,7 @@ class Installer(object):
         '''
 
 
-def main(installdir = None):
+def main(installdir = None, version=False):
 
     _cwd = getattr(sys, '_MEIPASS', None)
     if not _cwd:
@@ -429,6 +432,12 @@ def main(installdir = None):
 
     conf = config.InstallerConfig(_conf)
     conf.read()
+
+    if version:
+        print __name__, __version__
+        print '[%s; %s]\n\n' % (__build__, __platform__)
+        print conf.getEntry('welcome')['text']
+        sys.exit(0)
 
     wt = WelcomeText()
     wt.addText(conf.getEntry('welcome')['text'])
