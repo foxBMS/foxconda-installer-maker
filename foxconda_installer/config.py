@@ -13,7 +13,10 @@ class InstallerConfig(object):
     def __init__(self, config = 'installer.yaml'):
         self.config = config
         self.dirname = os.path.dirname(config)
-        self.entries = None
+        self.clear()
+
+    def clear(self):
+        self.entries = {}
 
     def getEntry(self, k):
         return self.entries.get(k, None)
@@ -63,14 +66,24 @@ class InstallerConfig(object):
                     break
         return None
 
-    def read(self):
-        with open(self.config) as f:
+    def read(self, fname = None):
+        '''
+        Reads the configuration file and adds and updates the entries to
+        this.
+        :param fname:   file name (if not specified, self.config is used)
+        '''
+        if fname is None:
+            fname = self.config
+        with open(fname) as f:
             self.entries = yaml.load(f.read())
 
-    def write(self):
-        with open(self.config, 'w') as f:
+    def write(self, fname = None):
+        if fname is None:
+            fname = self.config
+        with open(fname, 'w') as f:
             f.write(yaml.dump(self.entries))
 
 
 if __name__ == '__main__':
     pass
+
