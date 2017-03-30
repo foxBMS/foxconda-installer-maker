@@ -12,6 +12,8 @@ import config
 import sys
 import os
 import tarfile
+import datetime
+import platform
 
 SPEC_TMPL_DEBUG = '''\
 # -*- mode: python -*-
@@ -24,7 +26,7 @@ datafiles = [(%(xrc)r, 'xrc')]
 
 
 a = Analysis([%(script)r],
-             pathex=None,
+             pathex=[%(pathex)r],
              binaries=None,
              datas=datafiles,
              hiddenimports=[],
@@ -63,7 +65,7 @@ datafiles = [(%(xrc)r, 'xrc')]
 
 
 a = Analysis([%(script)r],
-             pathex=None,
+             pathex=[%(pathex)r],
              binaries=None,
              datas=datafiles,
              hiddenimports=[],
@@ -91,10 +93,17 @@ exe = EXE(pyz,
           )
 '''
 
+INFO_TMPL = '''\
+__name__ = %(name)r
+__version__ = %(version)r
+__build__ = %(build)r
+__platform__ = %(platform)r
+'''
 
 class InstallerMaker(object):
 
     SPECFILE = '_install.spec'
+    INFOFILE = '__info__.py'
 
     def __init__(self, conf = 'installer.yaml', distpath = 'dist',
             sourcepath = '.', template = None, debug = False):
@@ -139,12 +148,17 @@ class InstallerMaker(object):
                 _template = SPEC_TMPL_DEBUG
             else:
                 _template = SPEC_TMPL
+        _infotemplate = INFO_TMPL
         _entries = {}
         _files = [os.path.join(f) for f in self.config.getAllFiles()]
         _files += [self.confpath]
         self.checkFiles(_files)
+        _entries['pathex'] = os.path.abspath('.')
         _entries['files'] = self.genFileEntries(_files)
         _entries['name'] = self.config.entries['name'] 
+        _entries['version'] = self.config.entries['version'] 
+        _entries['build'] = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+        _entries['platform'] = platform.platform()
         _entries['script'] = os.path.join(os.path.dirname(__file__), 'installer.py')
         _entries['xrc'] = os.path.join(os.path.dirname(__file__), 'xrc', 'fci.xrc')
         _entries['icon'] = _icon
@@ -154,6 +168,9 @@ class InstallerMaker(object):
             _entries['msexeversioninfo'] = 'version=%r' % _version
         else:
             _entries['msexeversioninfo'] = ''
+
+        with open(self.INFOFILE, 'w') as f:
+            f.write(_infotemplate % _entries)
 
         with open(self.SPECFILE, 'w') as f:
             f.write(_template % _entries)
@@ -181,6 +198,7 @@ class InstallerMaker(object):
 
         subprocess.call(' '.join(_args), shell=True)
         os.remove(self.SPECFILE)
+        os.remove(self.INFOFILE)
 
 
 def main():
