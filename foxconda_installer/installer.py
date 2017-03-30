@@ -6,6 +6,7 @@ $Id$
 
 import argparse
 import logging
+import __info__
 
 
 def main():
@@ -13,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description='foxConda Installer---Payload Generator')
 
     parser.add_argument('-v', '--verbosity', action='count', default=0, help="increase output verbosity")
+    parser.add_argument('--version', action='store_true', default=False, help="shows version information and exits")
     parser.add_argument('--installdir', '-d', default=None, help='installation directory')
     parser.add_argument('--no-gui', '-n', action='store_true', help='command line installer')
 
@@ -22,6 +24,11 @@ def main():
         logging.basicConfig(level = logging.INFO)
     elif args.verbosity > 1:
         logging.basicConfig(level = logging.DEBUG)
+
+    if args.version:
+        from foxconda_installer import cliinstaller
+        cliinstaller.main(args.installdir, version=True)
+        exit(0)
 
     if args.no_gui:
         from foxconda_installer import cliinstaller
