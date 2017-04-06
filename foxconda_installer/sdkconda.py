@@ -10,6 +10,7 @@ import os
 import sys
 import glob
 import json
+import shutil
 
 metatmpl = '''\
 package:
@@ -74,11 +75,17 @@ class SDKFoxConda(object):
 
     def cleanBuildEnv(self):
         try:
-            logging.debug(cmd)
             cmd = self._CONDA + ' remove -y -n ' + self._BUILD_ENV + ' --all'
+            logging.debug(cmd)
             status = subprocess.call(cmd, shell=True)
-        except:
-            pass
+        except Exception, e:
+            logging.debug(str(e))
+
+        try:
+            shutil.rmtree('meta-recipe')
+        except Exception, e:
+            logging.debug(str(e))
+
 
     def collectPackages(self):
         packages = []
