@@ -31,7 +31,7 @@ class PayloadGenerator(object):
             self._packages = json.load(_f)['packages']
 
     def getCondaDependencies(self):
-        _version = sdkconda.SDKFoxConda.findNewestPackage('conda').split('-')[1]
+        _version = os.path.basename(sdkconda.SDKFoxConda.findNewestPackage('conda')).split('-')[1]
         p = subprocess.Popen('conda info --json conda={}'.format(_version),
                 stdout=subprocess.PIPE, stderr=None, stdin=None, shell=True)
         _d = p.stdout.read()
