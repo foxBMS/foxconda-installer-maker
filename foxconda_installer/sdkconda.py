@@ -63,9 +63,9 @@ class SDKFoxConda(object):
 
     def createBuildEnv(self):
         for m in ['create', 'install']:
-            cmd = '%s %s -y -n %s -c file://%s %s' % (self._CONDA, m,
+            cmd = '%s %s -y -n %s --unknown -c file:///%s %s' % (self._CONDA, m,
                     self._BUILD_ENV, os.path.join(sys.prefix, 'conda-bld'),
-                    self._MP) 
+                    self._MP)
             logging.debug(cmd)
             try:
                 status = subprocess.call(cmd, shell=True)
