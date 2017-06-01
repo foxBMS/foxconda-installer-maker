@@ -46,7 +46,7 @@ class PayloadGenerator(object):
                     _p = d.split(' ')[0]
                     _exists = False
                     for k,v in self._packages.iteritems():
-                        print v['name'], _p 
+                        print v['name'], _p
                         if v['name'] == _p:
                             _exists = True
                             break
