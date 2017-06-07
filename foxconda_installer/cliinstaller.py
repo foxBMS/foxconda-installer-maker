@@ -318,8 +318,13 @@ class Installer(object):
             _args = [_pythonpath, '-E', '-s', _install]
             if sys.platform.startswith('linux'):
                 _args = ' '.join(_args)
+            logging.debug(_args)
             #subprocess.call(_args, shell=True, env=env)
-            subprocess.call(_args, shell=True)
+            if sys.platform.startswith('darwin'):
+                # no clue, why shell doesn't work on Darwin
+                subprocess.call(_args)
+            else:
+                subprocess.call(_args, shell=True)
             os.remove(_path)
         os.chdir(thisdir)
 
