@@ -62,7 +62,10 @@ class InstallerConfig(object):
                     return v
                     break
                 elif k == 'osx' and sys.platform.startswith('darwin'):
-                    return v
+                    # all of the sudden, the Darwin installer complained
+                    # that it wasn't provided a Windows icon???
+                    #return v
+                    return _icon['win']
                     break
         return None
 
