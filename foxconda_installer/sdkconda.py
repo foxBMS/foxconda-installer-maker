@@ -63,14 +63,21 @@ class SDKFoxConda(object):
 
     def createBuildEnv(self):
         for m in ['create', 'install']:
-            cmd = '%s %s -y -n %s --unknown -c file:///%s %s' % (self._CONDA, m,
-                    self._BUILD_ENV, os.path.join(sys.prefix, 'conda-bld'),
+
+            #cmd = '%s %s -y -n %s --unknown -c file:///%s %s' % (self._CONDA, m,
+            #        self._BUILD_ENV, os.path.join(sys.prefix, 'conda-bld'),
+            #        self._MP)
+
+            cmd = '%s %s -y -n %s --unknown --use-local %s' % (self._CONDA, m,
+                    self._BUILD_ENV, 
                     self._MP)
+
             logging.debug(cmd)
             try:
                 status = subprocess.call(cmd, shell=True)
                 return
             except:
+                logging.error('error installing %s' % self._MP)
                 pass
 
     def cleanBuildEnv(self):
